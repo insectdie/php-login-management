@@ -7,6 +7,7 @@ use insectdie\PHP\MVC\Exception\ValidationException;
 use insectdie\PHP\MVC\Model\UserRegisterRequest;
 use insectdie\PHP\MVC\Repository\UserRepository;
 use insectdie\PHP\MVC\Domain\User;
+use insectdie\PHP\MVC\Model\UserLoginRequest;
 use PHPUnit\Framework\TestCase;
 
 class UserServiceTest extends TestCase
@@ -64,5 +65,49 @@ class UserServiceTest extends TestCase
         $request->password = "rahasia";
 
         $this->userService->register($request);
+    }
+
+    public function testLoginNotFound()
+    {
+        $this->expectException(ValidationException::class);
+            
+        $request = new UserLoginRequest();
+        $request->id = "andry";
+        $request->password = "rahasia";
+
+        $this->userService->login($request);
+    }
+
+    public function testLoginWrongPassword()
+    {
+        $user = new User();
+        $user->id = "andry";
+        $user->password = password_hash("rahasia", PASSWORD_BCRYPT);
+
+        $this->expectException(ValidationException::class);
+            
+        $request = new UserLoginRequest();
+        $request->id = "budi";
+        $request->password = "salah";
+
+        $this->userService->login($request);
+    }
+
+    public function testLoginSuccess()
+    {
+        $user = new User();
+        $user->id = "andry";
+        $user->password = password_hash("rahasia", PASSWORD_BCRYPT);
+
+        $this->expectException(ValidationException::class);
+            
+        $request = new UserLoginRequest();
+        $request->id = "budi";
+        $request->password = "rahasia";
+
+        $response = $this->userService->login($request);
+
+        self::assertEquals($request->id, $response->user->id);
+        self::assertTrue(password_verify($request->password, $response->user->password));
     }
 }

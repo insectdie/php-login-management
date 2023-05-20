@@ -8,6 +8,10 @@ use insectdie\PHP\MVC\Model\UserRegisterRequest;
 use insectdie\PHP\MVC\Model\UserRegisterResponse;
 use insectdie\PHP\MVC\Repository\UserRepository;
 use insectdie\PHP\MVC\Domain\User;
+use insectdie\PHP\MVC\Model\UserLoginRequest;
+use insectdie\PHP\MVC\Model\UserLoginResponse;
+
+use function PHPUnit\Framework\throwException;
 
 class UserService 
 {
@@ -51,6 +55,32 @@ class UserService
         if($request->id == null || $request->name == null || $request->password == null ||
         trim($request->id) == "" || trim($request->name) == "" || trim($request->password) == "") {
             throw new ValidationException("Id, Name, Password can not blank");
+        }
+    }
+
+    public function login(UserLoginRequest $request): UserLoginResponse
+    {
+        $this->validateUserLoginRequest($request);
+
+        $user = $this->userRepository->findById($request->id);
+        if ($user == null) {
+            throw new ValidationException("Id or password is wrong");
+        }
+
+        if (password_verify($request->password, $user->password)) {
+            $response = new UserLoginResponse();
+            $response->user = $user;
+            return $response;
+        } else {
+            throw new ValidationException("Id or password is wrong");
+        }
+    }
+
+    public function validateUserLoginRequest(UserLoginRequest $request)
+    {
+        if($request->id == null || $request->password == null ||
+        trim($request->id) == "" || trim($request->password) == "") {
+            throw new ValidationException("Id, Password can not blank");
         }
     }
 }

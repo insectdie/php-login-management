@@ -6,6 +6,7 @@ use insectdie\PHP\MVC\App\View;
 use insectdie\PHP\MVC\Config\Database;
 use insectdie\PHP\MVC\Exception\ValidationException;
 use insectdie\PHP\MVC\Model\UserRegisterRequest;
+use insectdie\PHP\MVC\Model\UserLoginRequest;
 use insectdie\PHP\MVC\Repository\UserRepository;
 use insectdie\PHP\MVC\Service\UserService;
 
@@ -38,6 +39,28 @@ class UserController
         } catch (ValidationException $exception) {
             View::render('User/register', [
                 'title' => 'Register new User',
+                'error' => $exception->getMessage()
+            ]);
+        }
+    }
+
+    public function login() {
+        View::render('User/login', [
+            "tittle" => "Login user"
+        ]);
+    }
+
+    public function postLogin() {
+        $request = new UserLoginRequest();
+        $request->id = $_POST['id'];
+        $request->password = $_POST['password'];
+
+        try {
+            $this->userService->login($request);
+            View::redirect('/');
+        } catch (ValidationException $exception) {
+            View::render('User/login', [
+                'title' => 'Login user',
                 'error' => $exception->getMessage()
             ]);
         }
