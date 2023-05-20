@@ -1,0 +1,27 @@
+{
+    "name": "insectdie/php-management-login",
+    "description": "PHP Login Management",
+    "type": "project",
+    "authors": [
+        {
+            "name": "insectdie",
+            "email": "ompusungguandry@gmail.com"
+        }
+    ],
+    "require": {
+        "php" : ">=8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "9.5.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "insectdie\\PHP\\MVC\\" : "app"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "insectdie\\PHP\\MVC\\" : "test"
+        }
+    }
+}
