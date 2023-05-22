@@ -43,15 +43,42 @@ class SessionServiceTest extends TestCase
         $session = $this->sessionService->create("andry");
 
         $this->expectOutputRegex("[X-INSECTDIE-SESSION: $session->id]");
+
+        $result = $this->sessionRepository->findById($session->id);
+
+        self::assertEquals("andry", $result->userId);
     }
 
-    // public function testDestroy() {
+    public function testDestroy() {
+        $session = new Session();
+        $session->id = uniqid();
+        $session->userId = "andry";
 
-    // }
+        $this->sessionRepository->save($session);
 
-    // public function testCurrent() {
+        $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
 
-    // }
+        $this->sessionService->destroy();
+
+        $this->expectOutputRegex("[X-INSECTDIE-SESSION: ]");
+
+        $result = $this->sessionRepository->findById($session->id);
+        self::assertNull($result);
+    }
+
+    public function testCurrent() {
+        $session = new Session();
+        $session->id = uniqid();
+        $session->userId = "andry";
+
+        $this->sessionRepository->save($session);
+
+        $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
+
+        $user = $this->sessionService->current();
+
+        self::assertEquals($session->userId, $user->id);
+    }
 
     
 }

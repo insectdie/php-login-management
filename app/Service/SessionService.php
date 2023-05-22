@@ -9,7 +9,7 @@ use insectdie\PHP\MVC\Repository\UserRepository;
 
 class SessionService 
 {
-    public static string $COOKIE_NAME = "X-INSECTDIE-SECTION";
+    public static string $COOKIE_NAME = "X-INSECTDIE-SESSION";
 
     private SessionRepository $sessionRepository;
     private UserRepository $userRepository;
