@@ -4,21 +4,28 @@ namespace insectdie\PHP\MVC\Controller;
 
 use insectdie\PHP\MVC\App\View;
 use insectdie\PHP\MVC\Config\Database;
+use insectdie\PHP\MVC\Domain\Session;
 use insectdie\PHP\MVC\Exception\ValidationException;
 use insectdie\PHP\MVC\Model\UserRegisterRequest;
 use insectdie\PHP\MVC\Model\UserLoginRequest;
+use insectdie\PHP\MVC\Repository\SessionRepository;
 use insectdie\PHP\MVC\Repository\UserRepository;
+use insectdie\PHP\MVC\Service\SessionService;
 use insectdie\PHP\MVC\Service\UserService;
 
 class UserController
 {
     private UserService $userService;
+    private SessionService $sessionService;
 
     public function __construct()
     {
         $connection = Database::getConnection();
         $userRepository = new UserRepository($connection);
         $this->userService = new UserService($userRepository);
+
+        $sessionRepository = new SessionRepository($connection);
+        $this->sessionService = new SessionService($sessionRepository, $userRepository);
     }
 
     public function register(){
@@ -56,7 +63,10 @@ class UserController
         $request->password = $_POST['password'];
 
         try {
-            $this->userService->login($request);
+            $response = $this->userService->login($request);
+            
+            $this->sessionService->create($response->user->id);
+
             View::redirect('/');
         } catch (ValidationException $exception) {
             View::render('User/login', [

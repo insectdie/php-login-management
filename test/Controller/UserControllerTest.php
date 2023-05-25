@@ -6,9 +6,16 @@ namespace insectdie\PHP\MVC\App {
     }
 }
 
+namespace insectdie\PHP\MVC\Service {
+    function setcookie(string $name, string $value) {
+        echo "$name: $value";
+    }
+}
+
 namespace insectdie\PHP\MVC\Controller {
     use insectdie\PHP\MVC\Config\Database;
     use insectdie\PHP\MVC\Domain\User;
+    use insectdie\PHP\MVC\Repository\SessionRepository;
     use insectdie\PHP\MVC\Repository\UserRepository;
     use PHPUnit\Framework\TestCase;
 
@@ -16,9 +23,13 @@ namespace insectdie\PHP\MVC\Controller {
     {
         private UserController $userController;
         private UserRepository $userRepository;
+        private SessionRepository $sessionRepository;
 
         protected function setUp():void {
             $this->userController = new UserController();
+
+            $this->sessionRepository = new SessionRepository(Database::getConnection());
+            $this->sessionRepository->deleteAll();
 
             $this->userRepository = new UserRepository(Database::getConnection());
             $this->userRepository->deleteAll();
@@ -105,6 +116,7 @@ namespace insectdie\PHP\MVC\Controller {
             $this->userController->postLogin();    
 
             $this->expectOutputRegex("[Location: /]");
+            $this->expectOutputRegex("[X-INSECTDIE-SESSION: ]");
         }
 
         public function testLoginValidationError() {
